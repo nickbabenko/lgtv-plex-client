@@ -204,10 +204,10 @@ function PlayerView(uri, useViewOffset, returnView) {
      * Update the progress bar.
      */
     function updateElapsedTime(e) {
-    	console.log(((video.currentTime / video.duration) * 100));
-    
+    	var progressBarBase = document.getElementById('progressbar-back');
+    	    	    
         document.getElementById('duration').innerHTML = Time.format(video.currentTime);
-        document.getElementById('progressbar-front').style.width = ((video.currentTime / video.duration) * 100) + 'px';
+        document.getElementById('progressbar-front').style.width = ((progressBarBase.offsetWidth / 100) * ((video.currentTime / video.duration) * 100)) + 'px';
     }
 
     /**
