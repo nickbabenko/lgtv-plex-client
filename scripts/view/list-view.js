@@ -214,18 +214,24 @@ function ListView(uri, returnView) {
         clearTimeout(resourceLoadTimer);
 
         var selected = nav.current();
+                
+        if(!selected)
+        	return;
+        
         var idx = parseInt(selected.getAttribute('data-index'), 10);
         var media = mediaContainer.media[idx];
 
         var key = media.key;
         var isContainer = media.container;
-
+                
         if (isContainer) {
             window.view = new ListView(plexAPI.getURL(key, uri), this);
             window.view.render();
         }
         else {
             var offset = media.viewOffset;
+            
+            console.log(media);
 
             if (offset > 0 && platform.canSeek(media)) {
                 window.view = new ResumeView(plexAPI.getURL(key), offset, this);
@@ -253,9 +259,11 @@ function ListView(uri, returnView) {
         this.render();
     };
     this.render = function () {
+    	console.log('render', uri);
+    
         plexAPI.browse(uri, function(container) {
             mediaContainer = container;
-
+            
             var mediaList = container.media;
             var mediaListCount = mediaList.length;
 

@@ -27,9 +27,8 @@ function PlayerView(uri, useViewOffset, returnView) {
     var controls = document.getElementById('controls');
     var status = document.getElementById('player-status-message');
 
-    if (Settings.useAnim()) {
+    if (Settings.useAnim())
         platform.addTransition(controls, '500ms', 'bottom');
-    }
 
     var totalDuration = 0;
     var durationIndex = 0;
@@ -41,6 +40,18 @@ function PlayerView(uri, useViewOffset, returnView) {
     var controlsTimer;
     var processTimer;
     var plexProgressTimer;
+    
+    var video;
+    
+    function createVideo() {
+	    video = document.createElement('video');
+	    
+	    video.setAttribute('id', 'video');
+	    
+	    video.volume = 1;
+	    	    
+	    player.appendChild(video);
+    }
 
     function showControls(msg, timeout) {
         controls.style.bottom = 0;
@@ -60,8 +71,10 @@ function PlayerView(uri, useViewOffset, returnView) {
         // Initially the player is offscreen due to the loading hack, so we need to move it back
         player.style.top = '0';
     }
+    
     function closePlayer() {
         hideControls();
+        
         video.stop();
 
         // Manually report that we have stopped
@@ -77,18 +90,18 @@ function PlayerView(uri, useViewOffset, returnView) {
         else {
             window.view = returnView;
         }
+        
         window.view.reload();
 
         player.style.display = 'none';
     }
 
     function reportPlexProgress() {
-
-        if (!mediaRatingKey) {
+        if (!mediaRatingKey)
             return;
-        }
 
         var state = 'stopped';
+        
         switch (video.playState)
         {
             case 0:
@@ -148,82 +161,73 @@ function PlayerView(uri, useViewOffset, returnView) {
 
     function readyHandler() {
         loading = false;
+        
         document.getElementById('video-loading').style.display = 'none';
 
         setDuration();
 
         if (startViewOffset) {
             doSkip(startViewOffset);
+            
             startViewOffset = null;
         }
     }
 
     function setDuration() {
-        totalDuration = Math.floor(video.playTime/1000);
-        durationIndex = 1200/totalDuration;
-
-        document.getElementById('total-duration').innerHTML = Time.format(totalDuration);
+        document.getElementById('total-duration').innerHTML = Time.format(video.duration);
     }
 
-    function checkPlayState() {
-        console.log('Player state: ' + video.playState);
-        switch (video.playState)
-        {
-            case 5: // finished
-                closePlayer();
-                break;
-            case 0: // stopped
-                break;
-            case 6: // error
-                // TODO: Error message for the enduser
-                closePlayer();
-                break;
-            case 1: // playing
-                if (loading) {
-                    readyHandler();
-                }
-                break;
-            case 2: // paused
-                break;
-            case 3: // connecting
-                break;
-            case 4: // buffering
-                showControls('BUFFERING', CONTROLS_TIMEOUT);
-                break;
-            default:
-                // do nothing
-                break;
-        }
+    function createEventListeners() {    
+    	video.addEventListener('progress', function(e) {	    	
+	    	updateElapsedTime(e);
+    	});
+    	
+    	video.addEventListener('loadeddata', function(e) {
+	    	if(loading)
+	    		readyHandler();
+    	});
+    	
+    	video.addEventListener('ended', function(e) {
+	    	closePlayer();
+    	});
+    	
+    	video.addEventListener('error', function(e) {
+	    	closePlayer();
+    	});
+    	
+    	video.addEventListener('stalled', function(e) {
+	    	showControls('BUFFERING', CONTROLS_TIMEOUT);
+    	});
     }
 
     /**
      * Update the progress bar.
      */
-    function updateElapsedTime() {
-        var ct = video.playPosition/1000;
-        document.getElementById('duration').innerHTML = Time.format(ct);
-
-        var sliceTime = Math.round(ct * durationIndex);
-        document.getElementById('progressbar-front').style.width = sliceTime+'px';
+    function updateElapsedTime(e) {
+    	console.log(((video.currentTime / video.duration) * 100));
+    
+        document.getElementById('duration').innerHTML = Time.format(video.currentTime);
+        document.getElementById('progressbar-front').style.width = ((video.currentTime / video.duration) * 100) + 'px';
     }
 
     /**
      * Toggle the player state between playing and paused.
      */
     function togglePause() {
-        if (loading) {
+        if (loading)
             return;
-        }
 
         if (parseInt(controls.style.bottom,10) === 0) {
-            video.play(1);
+            video.play();
+            
             // Delay hidding the controls a bit to make it more fluent
             setTimeout(function() {
                 hideControls();
             }, 1000);
         }
         else {
-            video.play(0);
+            video.pause();
+            
             showControls('PAUSED');
         }
     }
@@ -235,18 +239,16 @@ function PlayerView(uri, useViewOffset, returnView) {
      * @param {number} time the time to skip in seconds
      */
     function doSkip(time) {
-        if (loading) {
+        if (loading)
             return;
-        }
-
+            
         showControls('', CONTROLS_TIMEOUT);
 
         // Get the total time in milliseconds
         var totalTime = video.playPosition + (time * 1000);
 
-        if (totalTime > 0 && totalTime < video.playTime) {
+        if (totalTime > 0 && totalTime < video.playTime)
             video.seek(totalTime);
-        }
     }
 
     /**
@@ -258,12 +260,10 @@ function PlayerView(uri, useViewOffset, returnView) {
      * @param {number} direction if <code>1</code> seek forward if <code>-1</code> seek backwards
      */
     function doSeek(direction) {
-        if (loading) {
+        if (loading)
             return;
-        }
 
         showControls('');
-
 
         // TODO: 4 is the constant test speed. If it works use incremental speed
         video.play(direction*4);
@@ -302,14 +302,18 @@ function PlayerView(uri, useViewOffset, returnView) {
     this.onStop = function () {
         closePlayer();
     };
+    
 	this.render = function (container) {
 		var media = container.media[0];
 
         console.log('Playing: codec: ' + media.stream.video.codec + '/' + media.stream.audio.codec + ' profile: ' + media.stream.video.profile + ' level: ' + media.stream.video.level);
 
+		createVideo();
         showPlayer();
+        createEventListeners();
 
         mediaRatingKey = media.ratingKey;
+        
         if (useViewOffset && media.viewOffset) {
             // Save the offset so we can set if when the video is loaded
             startViewOffset = media.viewOffset;
@@ -318,13 +322,16 @@ function PlayerView(uri, useViewOffset, returnView) {
         setMetaData(media);
 
         var url = plexAPI.getURL(media.url);
+        
+        console.log(url);
 
-        video.data = url;
-        if (media.mimeType) {
+        video.src = url;
+        
+        if (media.mimeType)
             video.type = media.mimeType;
-        }
-        video.play(1);
-
+        
+        video.load();
+        video.play();
 
         // Update process bar every second
         processTimer = setInterval(updateElapsedTime, 1000);
@@ -340,11 +347,10 @@ function PlayerView(uri, useViewOffset, returnView) {
                         .play();
 		}
 	};
-
+	
     loading = true;
+    
     document.getElementById('video-loading').style.display = 'block';
-
-    video.onPlayStateChange=checkPlayState;
 
 	plexAPI.browse(uri, function(container) {
 		scope.render(container);

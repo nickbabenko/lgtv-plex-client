@@ -1,10 +1,12 @@
 function Settings() {
-    var _pms = "192.168.178.10";
+    var _pms = "192.168.0.9";
     var _debug = false;
     var _debugUUID = 'default';
     var _anim = true;
 
     function getCookie(name) {
+    	console.log(document.cookie);
+    
         var x,y,ARRcookies=document.cookie.split(';');
         var n = ARRcookies.length;
         for (var i = 0; i < n; i++) {
@@ -35,10 +37,12 @@ function Settings() {
     }
 
     this.init = function() {
-        _pms = getCookie('nettv_plex_pms_ip');
+        //_pms = getCookie('nettv_plex_pms_ip');
         _debug = getCookie('nettv_plex_debug') === 'true';
         _debugUUID = getCookie('nettv_plex_debug_uuid');
         _anim = getCookie('nettv_plex_disable_anim') !== 'true';
+        
+        console.log(_pms);
 
         if (_debugUUID === undefined) {
             _debugUUID = 'nettv-plex-' + UUID.simple();
