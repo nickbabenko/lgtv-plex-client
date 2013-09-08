@@ -340,7 +340,7 @@ function HomeView() {
     };
     this.render = function() {
         plexAPI.browse(plexAPI.sections(), function(container) {
-
+        
             buildSectionList(container.media);
             buildNavigation();
 
@@ -349,7 +349,10 @@ function HomeView() {
 
             // Hide the loading screen
             setTimeout(function() {
-                document.getElementById('loader').style.display = 'none';
+            	var loader = document.getElementById('loader');
+            	
+            	if(loader)
+                	loader.style.display = 'none';
             }, 2000);
         });
     };

@@ -23,7 +23,7 @@ function PlexAPI() {
 	};
 
 	this.getURL = function(key, url) {
-		if (key.indexOf('/') === 0) {
+		if (key != null && key.indexOf('/') === 0) {
 			return 'http://'+Settings.getPMS()+':32400' + key;
 		}
         else if (!url) {

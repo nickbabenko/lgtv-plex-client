@@ -89,11 +89,13 @@ function init() {
     document.addEventListener('keydown', keydownHandler, true);
 
     var initialized = Settings.init();
-    if (!initialized) {
+    
+    if (!initialized)
         window.view = new SettingsView();
-    }
-    else {
+    else
         window.view = new HomeView();
-    }
+        
     window.view.render();
 }
+
+window.onload = init;
