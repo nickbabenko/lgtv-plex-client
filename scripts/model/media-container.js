@@ -27,6 +27,9 @@ function MediaContainer(elem) {
         else if (e.nodeName === 'Video') {
             media.push(new Video(e));
         }
+        else if(e.nodeName === 'Track') {
+	        media.push(new Track(e));
+        }
     }
 
     return {
