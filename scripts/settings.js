@@ -1,14 +1,13 @@
 function Settings() {
-    var _pms = "192.168.0.9";
+    var _pms = '192.168.0.20';
     var _debug = false;
     var _debugUUID = 'default';
     var _anim = true;
 
-    function getCookie(name) {
-    	console.log(document.cookie);
-    
+    function getCookie(name) {    
         var x,y,ARRcookies=document.cookie.split(';');
         var n = ARRcookies.length;
+        
         for (var i = 0; i < n; i++) {
             x=ARRcookies[i].substr(0,ARRcookies[i].indexOf('='));
             y=ARRcookies[i].substr(ARRcookies[i].indexOf('=')+1);
@@ -19,9 +18,12 @@ function Settings() {
         }
     }
     function setCookie(name,value,exdays) {
-        var exdate=new Date();
+        var exdate = new Date();
+        
         exdate.setDate(exdate.getDate() + exdays);
+        
         value = escape(value) + ((exdays===null) ? '' : '; expires='+exdate.toUTCString());
+        
         document.cookie = name + '=' + value;
     }
 
@@ -30,8 +32,9 @@ function Settings() {
     }
 
     function activateDebug(id) {
-        var g=document.createElement('script');
-        var s=document.getElementsByTagName('script')[0];
+        var g = document.createElement('script');
+        var s = document.getElementsByTagName('script')[0];
+        
         g.src='http://jsconsole.com/remote.js?'+id;
         s.parentNode.insertBefore(g,s);
     }

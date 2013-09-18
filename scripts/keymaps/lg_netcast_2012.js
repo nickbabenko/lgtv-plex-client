@@ -26,3 +26,4 @@ var VK_PLAY						= 415;
 var VK_FAST_FWD					= 417;
 var VK_INFO						= 457;
 var VK_BACK						= 461;
+var VK_PORTAL		 			= 1000;

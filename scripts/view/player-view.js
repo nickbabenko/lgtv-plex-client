@@ -74,13 +74,12 @@ function PlayerView(uri, useViewOffset, returnView) {
     
     function closePlayer() {
         hideControls();
-        
-        video.stop();
+                
+        video.pause();
 
         // Manually report that we have stopped
         reportPlexProgress();
 
-        clearInterval(processTimer);
         clearInterval(plexProgressTimer);
         clearInterval(controlsTimer);
 
@@ -188,14 +187,15 @@ function PlayerView(uri, useViewOffset, returnView) {
     	});
     	
     	video.addEventListener('ended', function(e) {
+    		console.log(e);
 	    	closePlayer();
     	});
     	
-    	video.addEventListener('error', function(e) {
+    	video.addEventListener('error', function(e) {  
 	    	closePlayer();
     	});
     	
-    	video.addEventListener('stalled', function(e) {
+    	video.addEventListener('stalled', function(e) {    	
 	    	showControls('BUFFERING', CONTROLS_TIMEOUT);
     	});
     }
@@ -306,8 +306,6 @@ function PlayerView(uri, useViewOffset, returnView) {
 	this.render = function (container) {
 		var media = container.media[0];
 
-        console.log('Playing: codec: ' + media.stream.video.codec + '/' + media.stream.audio.codec + ' profile: ' + media.stream.video.profile + ' level: ' + media.stream.video.level);
-
 		createVideo();
         showPlayer();
         createEventListeners();
@@ -322,9 +320,7 @@ function PlayerView(uri, useViewOffset, returnView) {
         setMetaData(media);
 
         var url = plexAPI.getURL(media.url);
-        
-        console.log(url);
-
+                
         video.src = url;
         
         if (media.mimeType)
