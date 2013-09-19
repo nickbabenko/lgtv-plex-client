@@ -19,7 +19,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  height: 720px;
+  bottom: 0;
   width: 420px;
   font-size: 36px;
   padding: 0 10px;
@@ -71,9 +71,8 @@
   left: 400px;
   top: 127px;
   height: 488px;
-  width: 880px;
-  background: black;
-  background-image: url("../images/newlistdoublebgunfocused1.png"); }
+  right: 0;
+  background: black url("../images/newlistdoublebgunfocused1.png") top left; }
 
 #preview-menu ul {
   padding: 10px 20px;

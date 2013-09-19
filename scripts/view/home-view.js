@@ -254,7 +254,7 @@ function HomeView() {
                 thumb = video.grandparentThumb;
             }
 
-            var scaledThumb = plexAPI.getScaledImageURL(plexAPI.getURL(thumb), 110, 150);
+            var scaledThumb = plexAPI.getScaledImageURL(plexAPI.getURL(thumb), 200, 300);
 
             var img = new Image();
             img.onerror = posterErrorHandler;

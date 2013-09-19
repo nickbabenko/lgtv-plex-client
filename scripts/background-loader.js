@@ -29,7 +29,7 @@ function BackgroundLoader(backgroundId1, backgroundId2) {
      */
     this.load = function(url) {
         if (url) {
-            var scaledBackground = plexAPI.getScaledImageURL(plexAPI.getURL(url), 1280, 720);
+            var scaledBackground = plexAPI.getScaledImageURL(plexAPI.getURL(url), 1920, 1080);
 
             if (bg2.style.opacity === '0') {
                 if (bg2.src !== scaledBackground) {

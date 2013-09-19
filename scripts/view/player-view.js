@@ -33,7 +33,7 @@ function PlayerView(uri, useViewOffset, returnView) {
     var totalDuration = 0;
     var durationIndex = 0;
 
-    var mediaRatingKey;
+    var currentMedia;
     var loading = false;
     var startViewOffset = null;
 
@@ -41,7 +41,10 @@ function PlayerView(uri, useViewOffset, returnView) {
     var processTimer;
     var plexProgressTimer;
     
+    var lastPlexUpdateTime;
+    
     var video;
+    var state = 'stopped';
     
     function createVideo() {
 	    video = document.createElement('video');
@@ -95,32 +98,25 @@ function PlayerView(uri, useViewOffset, returnView) {
         player.style.display = 'none';
     }
 
-    function reportPlexProgress() {
-        if (!mediaRatingKey)
+    function reportPlexProgress() {    
+        if (!currentMedia)
             return;
-
-        var state = 'stopped';
+            
+        var duration = video.duration;
+        var position = video.currentTime;
         
-        switch (video.playState)
-        {
-            case 0:
-                state = 'stopped';
-                break;
-            case 1:
-                state = 'playing';
-                break;
-            case 2:
-                state = 'paused';
-                break;
+        if(lastPlexUpdateTime != null &&
+           ((position - lastPlexUpdateTime) < 1)) {
+	    	 return;
         }
-
-        var duration = video.playTime;
-        var position = video.playPosition;
+                  
 
         if (duration === 0) {
             // This happens when we are stopping a video
             return;
         }
+        
+        lastPlexUpdateTime = position;
 
         var viewedPercentage = Math.floor((position/duration)*100);
 
@@ -128,7 +124,7 @@ function PlayerView(uri, useViewOffset, returnView) {
             console.log('Reporting watched since we have viewed ' + viewedPercentage + '%');
 
             // Last 5 min. are regarded as watched
-            plexAPI.watched(mediaRatingKey);
+            plexAPI.watched(currentMedia.ratingKey);
 
             // Stop any further progress reporting
             clearInterval(plexProgressTimer);
@@ -136,7 +132,7 @@ function PlayerView(uri, useViewOffset, returnView) {
             return;
         }
 
-        plexAPI.progress(mediaRatingKey, position, state);
+        plexAPI.progress(currentMedia.key, currentMedia.ratingKey, (position * 1000), (duration * 1000), state);
     }
 
     function setMetaData(media) {
@@ -177,7 +173,16 @@ function PlayerView(uri, useViewOffset, returnView) {
     }
 
     function createEventListeners() {    
-    	video.addEventListener('progress', function(e) {	    	
+    	video.addEventListener('play', function(e) {
+	    	state = 'playing';
+    	});
+    	
+    	video.addEventListener('pause', function(e) {
+	    	state = 'paused';
+    	});
+    
+    	video.addEventListener('progress', function(e) {
+    		reportPlexProgress(e);	    	
 	    	updateElapsedTime(e);
     	});
     	
@@ -187,11 +192,14 @@ function PlayerView(uri, useViewOffset, returnView) {
     	});
     	
     	video.addEventListener('ended', function(e) {
-    		console.log(e);
+    		state = 'stopped';
+    	
 	    	closePlayer();
     	});
     	
     	video.addEventListener('error', function(e) {  
+    		state = 'stopped';
+    	
 	    	closePlayer();
     	});
     	
@@ -304,42 +312,39 @@ function PlayerView(uri, useViewOffset, returnView) {
     };
     
 	this.render = function (container) {
-		var media = container.media[0];
+		currentMedia = container.media[0];
 
 		createVideo();
         showPlayer();
         createEventListeners();
-
-        mediaRatingKey = media.ratingKey;
         
-        if (useViewOffset && media.viewOffset) {
+        if (useViewOffset && currentMedia.viewOffset) {
             // Save the offset so we can set if when the video is loaded
-            startViewOffset = media.viewOffset;
+            startViewOffset = currentMedia.viewOffset;
         }
 
-        setMetaData(media);
+        setMetaData(currentMedia);
 
-        var url = plexAPI.getURL(media.url);
+        var url = plexAPI.getURL(currentMedia.url);
                 
         video.src = url;
         
-        if (media.mimeType)
-            video.type = media.mimeType;
+        if (currentMedia.mimeType)
+            video.type = currentMedia.mimeType;
+                                    
+		var scaleRatio   	= (currentMedia.width / currentMedia.height);
+        var videoWidth 		= window.outerWidth; // fixed width depending on the viewport 
+        var videoHeight		= (videoWidth / scaleRatio);    
+                                
+        video.setAttribute('style', 'height: ' + videoHeight + 'px; width: ' + videoWidth + 'px; margin-top: ' + -(videoHeight / 2) + 'px;'); 
         
         video.load();
         video.play();
 
-        // Update process bar every second
-        processTimer = setInterval(updateElapsedTime, 1000);
-
-        // Report progress to Plex
-        plexProgressTimer = setInterval(reportPlexProgress, PROGRESS_INTERVAL);
-
 		// Load subtitles
-		if (media.subtitles) {
-            console.log('Loading subtitle ' + media.subtitles + '...');
+		if (currentMedia.subtitles) {
 			var p =  new Popcorn( '#video' )
-                        .parseSRT(plexAPI.getURL(media.subtitles))
+                        .parseSRT(plexAPI.getURL(currentMedia.subtitles))
                         .play();
 		}
 	};

@@ -35,8 +35,6 @@ function removeEventHandler(obj, eventName, handler){
 function keydownHandler(event) {
 	var userInput = getKeyCode(event);
 	
-	console.log('keyPress', userInput);
-
     try {
         switch (userInput) {
             case VK_UP:
@@ -123,10 +121,8 @@ function keydownHandler(event) {
     }
 }
 
-function initPage() {
-	console.log('init page');
-    
-    addEventHandler(document.body, "keydown", keydownHandler);
+function initPage() {    
+    addEventHandler(document.body, 'keydown', keydownHandler);
 
     var initialized = Settings.init();
     
@@ -136,6 +132,4 @@ function initPage() {
         window.view = new HomeView();
         
     window.view.render();
-    
-    window.focus();
 }

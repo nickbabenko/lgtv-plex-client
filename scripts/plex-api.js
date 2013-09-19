@@ -66,15 +66,17 @@ function PlexAPI() {
         xhr.send(null);
     };
 
-    this.progress = function(key, time, state) {
-        var url = 'http://'+Settings.getPMS()+':32400/:/progress?key='+key+'&identifier=com.plexapp.plugins.library&time='+time+'&state='+state;
+    this.progress = function(key, ratingKey, time, duration, state) {
+        var url = 'http://' + Settings.getPMS() + ':32400/:/timeline?time=' + parseInt(time, 10) + '&duration=' + duration + '&state=' + state + '&key=' + encodeURIComponent(key) + '&ratingKey=' + ratingKey;
         var xhr = new XMLHttpRequest();
+        
         xhr.open('GET', url, true);
         xhr.send(null);
     };
     this.watched = function(key) {
         var url = 'http://'+Settings.getPMS()+':32400/:/scrobble?key='+key+'&identifier=com.plexapp.plugins.library';
         var xhr = new XMLHttpRequest();
+        
         xhr.open('GET', url, true);
         xhr.send(null);
     };

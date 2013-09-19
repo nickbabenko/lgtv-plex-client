@@ -63,7 +63,7 @@ function Video(elem) {
             bitrate: stream.getAttribute('bitrate')
         };
     }
-
+    
 	var key = elem.getAttribute('key');
     var ratingKey = elem.getAttribute('ratingKey');
 	var title = elem.getAttribute('title');
@@ -93,6 +93,8 @@ function Video(elem) {
     var grandparentThumb = elem.getAttribute('grandparentThumb');
 
     var resolution;
+    var width;
+    var height;
 
 	var url = '';
     var mimeType = null;
@@ -111,6 +113,8 @@ function Video(elem) {
 
         mimeType = media.getAttribute('container');
         resolution = media.getAttribute('videoResolution');
+        width = parseInt(media.getAttribute('width'));
+        height = parseInt(media.getAttribute('height'));
 
 		var parts = media.getElementsByTagName('Part');
         var partCount = parts.length;
@@ -176,6 +180,8 @@ function Video(elem) {
         duration: duration,
         viewCount: viewCount,
         viewOffset: viewOffset,
-        stream: streamInformation
+        stream: streamInformation,
+        width: width,
+        height: height
 	};
 }
