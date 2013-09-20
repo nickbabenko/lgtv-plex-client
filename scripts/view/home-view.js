@@ -184,6 +184,7 @@ function HomeView() {
         }
 
         nav.activate();
+        ondeckMenu.reload();
     }
 
     function loadPreviewMenu(key) {

@@ -15,8 +15,8 @@ function VerticalFixedScrollMenu(menuId, activeId) {
         incr = current.offsetHeight;
     }
 
-    menu.style.top = 0;
-
+	var homeMenu = document.getElementById('home-menu');
+	    
     function setCurrentElement(elem) {
         current.removeAttribute('id');
         current = elem;
@@ -32,7 +32,8 @@ function VerticalFixedScrollMenu(menuId, activeId) {
         return current;
     };
     this.reload = function() {
-        menu.style.top = 0;
+         menu.style.top = ((homeMenu.offsetHeight / 2) - (menu.offsetHeight / 2)) + 'px';
+         
         current = document.getElementById(activeId);
         if (current !== null) {
             incr = current.offsetHeight;
