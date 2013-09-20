@@ -187,8 +187,11 @@ function PlayerView(uri, useViewOffset, returnView) {
     	});
     	
     	video.addEventListener('loadeddata', function(e) {
-	    	if(loading)
+	    	if(loading) {
+	    		loading = false;
+	    		
 	    		readyHandler();
+	    	}
     	});
     	
     	video.addEventListener('ended', function(e) {
@@ -252,11 +255,7 @@ function PlayerView(uri, useViewOffset, returnView) {
             
         showControls('', CONTROLS_TIMEOUT);
 
-        // Get the total time in milliseconds
-        var totalTime = video.playPosition + (time * 1000);
-
-        if (totalTime > 0 && totalTime < video.playTime)
-            video.seek(totalTime);
+        video.currentTime = time;
     }
 
     /**
@@ -317,11 +316,13 @@ function PlayerView(uri, useViewOffset, returnView) {
 		createVideo();
         showPlayer();
         createEventListeners();
-        
+                
         if (useViewOffset && currentMedia.viewOffset) {
             // Save the offset so we can set if when the video is loaded
             startViewOffset = currentMedia.viewOffset;
         }
+        
+        console.log(startViewOffset);
 
         setMetaData(currentMedia);
 
