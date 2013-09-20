@@ -87,7 +87,7 @@ function ListView(uri, returnView) {
 
         if (media.thumb) {
             var thumb = new Image();
-            thumb.src = plexAPI.getScaledImageURL(plexAPI.getURL(media.thumb), 245, 360);
+            thumb.src = plexAPI.getScaledImageURL(plexAPI.getURL(media.thumb), (245*2), (360*2));
             thumb.style.width = '245px';
             thumb.style.height = '360px';
 
@@ -117,7 +117,7 @@ function ListView(uri, returnView) {
         container.appendChild(summary);
 
         var thumb = new Image();
-        thumb.src = plexAPI.getScaledImageURL(plexAPI.getURL(media.thumb), 460, 210);
+        thumb.src = plexAPI.getScaledImageURL(plexAPI.getURL(media.thumb), (460*2), (210*2));
         thumb.style.width = '460px';
         thumb.style.height = '210px';
 
@@ -148,7 +148,7 @@ function ListView(uri, returnView) {
 
         if (media.thumb) {
             var thumb = new Image();
-            thumb.src = plexAPI.getScaledImageURL(plexAPI.getURL(media.thumb), 245, 360);
+            thumb.src = plexAPI.getScaledImageURL(plexAPI.getURL(media.thumb), (245*2), (360*2));
             thumb.style.width = '245px';
             thumb.style.height = '360px';
 

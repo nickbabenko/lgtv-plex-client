@@ -36,6 +36,7 @@ function HomeView() {
     function changeActiveMenu(newMenu) {
         document.getElementById('ondeck-title').innerHTML = '';
         document.getElementById('recentlyadded-title').innerHTML = '';
+        
         nav.deactivate();
         nav = newMenu;
         nav.activate();
@@ -255,7 +256,7 @@ function HomeView() {
                 thumb = video.grandparentThumb;
             }
 
-            var scaledThumb = plexAPI.getScaledImageURL(plexAPI.getURL(thumb), 200, 300);
+            var scaledThumb = plexAPI.getScaledImageURL(plexAPI.getURL(thumb), 310, 450);
 
             var img = new Image();
             img.onerror = posterErrorHandler;

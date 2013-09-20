@@ -14,27 +14,25 @@
     top:0;
     right: 0;
     height:55px;
-    background-color: black;
-    opacity: 0.9;
+    background-color: rgba(20, 20, 20, 0.85);
     border-bottom: 1px solid #555354;
 }
 
 #list .main {
     position:absolute;
     left:0;
+    top: 250px;
     bottom:0;
     right: 0;
-    height:450px;
-    background-color: black;
-    opacity: 0.9;
+    background-color: rgba(20, 20, 20, 0.85);
     border-top: 1px solid #555354;
 }
 
 #list-menu {
-    position:relative;
+    position:absolute;
     left:0;
     top:28px;
-    bottom: 0;
+    bottom: 47px;
     font-size: 24px;
     width: 600px;
     overflow: hidden;
@@ -61,7 +59,7 @@
     position:absolute;
     left:600px;
     top:28px;
-    width:680px;
+    right: 20px;
 }
 
 #list-info .episode img {
@@ -115,7 +113,9 @@
 #list-info .video img {
     position: absolute;
     top:0;
-    right:30px;
+    right:8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 #list-info .video h1 {
@@ -147,7 +147,7 @@
     top:75px;
     left:30px;
     margin: 0;
-    width: 350px;
+    right: 300px;
     height: 275px;
     overflow: hidden;
     font-size: 18px;
@@ -167,11 +167,12 @@
 
 #list-menu li {
     color: #909090;
-    background-color: black;
+    background-color: rgba(18, 18, 18, 0.8);
     padding: 10px 30px;
     margin: 2px 0;
     overflow: hidden;
     white-space:nowrap;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 #list-menu li.active {
     color: white;
