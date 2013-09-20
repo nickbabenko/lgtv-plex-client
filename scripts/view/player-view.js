@@ -322,8 +322,6 @@ function PlayerView(uri, useViewOffset, returnView) {
             startViewOffset = currentMedia.viewOffset;
         }
         
-        console.log(startViewOffset);
-
         setMetaData(currentMedia);
 
         var url = plexAPI.getURL(currentMedia.url);
