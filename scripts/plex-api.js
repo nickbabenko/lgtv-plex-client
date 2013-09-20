@@ -1,5 +1,8 @@
 function PlexAPI() {
     'use strict';
+    
+    this.clientIdentifier = 'LG-Plex';
+    
 	this.browse = function(url, callback) {
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
@@ -19,6 +22,7 @@ function PlexAPI() {
             callback(new MediaContainer());
         };
         xhr.open('GET', url, true);
+        xhr.setRequestHeader('X-Plex-Client-Identifier', this.clientIdentifier);
         xhr.send(null);
 	};
 
@@ -65,13 +69,17 @@ function PlexAPI() {
         xhr.open('GET', 'http://'+address+':32400/library/sections', true);
         xhr.send(null);
     };
+    
+    this.get = function(url) {
+	    var xhr = new XMLHttpRequest();
+	   
+	    xhr.open('GET', url, true);
+	    xhr.setRequestHeader('X-Plex-Client-Identifier', this.clientIdentifier);
+	    xhr.send(null);
+    }
 
     this.progress = function(key, ratingKey, time, duration, state) {
-        var url = 'http://' + Settings.getPMS() + ':32400/:/timeline?time=' + parseInt(time, 10) + '&duration=' + duration + '&state=' + state + '&key=' + encodeURIComponent(key) + '&ratingKey=' + ratingKey;
-        var xhr = new XMLHttpRequest();
-        
-        xhr.open('GET', url, true);
-        xhr.send(null);
+        this.get('http://' + Settings.getPMS() + ':32400/:/timeline?time=' + parseInt(time, 10) + '&duration=' + duration + '&state=' + state + '&key=' + encodeURIComponent(key) + '&ratingKey=' + ratingKey);
     };
     this.watched = function(key) {
         var url = 'http://'+Settings.getPMS()+':32400/:/scrobble?key='+key+'&identifier=com.plexapp.plugins.library';

@@ -106,7 +106,7 @@ function PlayerView(uri, useViewOffset, returnView) {
         var position = video.currentTime;
         
         if(lastPlexUpdateTime != null &&
-           ((position - lastPlexUpdateTime) < 1)) {
+           ((position - lastPlexUpdateTime) < 10)) { // only every 10 seconds
 	    	 return;
         }
                   
@@ -118,7 +118,7 @@ function PlayerView(uri, useViewOffset, returnView) {
         
         lastPlexUpdateTime = position;
 
-        var viewedPercentage = Math.floor((position/duration)*100);
+        var viewedPercentage = Math.floor((position / duration) * 100);
 
         if (viewedPercentage > WATCHED_PERCENTAGE) {
             console.log('Reporting watched since we have viewed ' + viewedPercentage + '%');
@@ -132,7 +132,7 @@ function PlayerView(uri, useViewOffset, returnView) {
             return;
         }
 
-        plexAPI.progress(currentMedia.key, currentMedia.ratingKey, (position * 1000), (duration * 1000), state);
+        plexAPI.progress(currentMedia.key, currentMedia.ratingKey, (position * 1000), (currentMedia.duration * 1000), state);
     }
 
     function setMetaData(media) {
