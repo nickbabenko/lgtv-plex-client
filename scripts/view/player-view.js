@@ -173,20 +173,26 @@ function PlayerView(uri, useViewOffset, returnView) {
     }
 
     function createEventListeners() {    
-    	video.addEventListener('play', function(e) {
+    	addEventHandler(video, 'play', function(e) {
 	    	state = 'playing';
     	});
     	
-    	video.addEventListener('pause', function(e) {
+    	addEventHandler(video, 'pause', function(e) {
 	    	state = 'paused';
     	});
     
-    	video.addEventListener('progress', function(e) {
+    	addEventHandler(video, 'progress', function(e) {
     		reportPlexProgress(e);	    	
 	    	updateElapsedTime(e);
     	});
     	
-    	video.addEventListener('loadeddata', function(e) {
+    	addEventHandler(video, 'ended', function(e) {
+    		state = 'stopped';
+    	
+	    	closePlayer();
+    	});
+    	
+    	addEventHandler(video, 'loadeddata', function() {    	
 	    	if(loading) {
 	    		loading = false;
 	    		
@@ -194,19 +200,13 @@ function PlayerView(uri, useViewOffset, returnView) {
 	    	}
     	});
     	
-    	video.addEventListener('ended', function(e) {
+    	addEventHandler(video, 'error', function(e) {  
     		state = 'stopped';
     	
 	    	closePlayer();
     	});
     	
-    	video.addEventListener('error', function(e) {  
-    		state = 'stopped';
-    	
-	    	closePlayer();
-    	});
-    	
-    	video.addEventListener('stalled', function(e) {    	
+    	addEventHandler(video, 'stalled', function(e) {    	
 	    	showControls('BUFFERING', CONTROLS_TIMEOUT);
     	});
     }
@@ -228,7 +228,7 @@ function PlayerView(uri, useViewOffset, returnView) {
         if (loading)
             return;
 
-        if (parseInt(controls.style.bottom,10) === 0) {
+        if (parseInt(controls.style.bottom, 10) === 0) {
             video.play();
             
             // Delay hidding the controls a bit to make it more fluent
@@ -244,8 +244,7 @@ function PlayerView(uri, useViewOffset, returnView) {
     }
 
     /**
-     * Skips x seconds in the video stream. If the amount to skip is outside the video
-     * bounds the request is ignored.
+     * Takes the video to a specific point
      *
      * @param {number} time the time to skip in seconds
      */
@@ -253,28 +252,13 @@ function PlayerView(uri, useViewOffset, returnView) {
         if (loading)
             return;
             
-        showControls('', CONTROLS_TIMEOUT);
-
-        video.currentTime = time;
+        showControls(' ', CONTROLS_TIMEOUT);
+        
+        video.currentTime = time;        
     }
-
-    /**
-     * Increase the play speed.
-     * <p>
-     * NOTE: Is currently not supported by NetTV.
-     * </p>
-     *
-     * @param {number} direction if <code>1</code> seek forward if <code>-1</code> seek backwards
-     */
-    function doSeek(direction) {
-        if (loading)
-            return;
-
-        showControls('');
-
-        // TODO: 4 is the constant test speed. If it works use incremental speed
-        video.play(direction*4);
-    }
+    
+    
+    /* !Key Events */
 
 	this.onUp = function () {
         hideControls();
@@ -283,16 +267,16 @@ function PlayerView(uri, useViewOffset, returnView) {
         showControls('');
 	};
 	this.onLeft = function () {
-        doSkip(-60.0);
+        doSkip((video.currentTime - 60.0));
 	};
     this.onRew = function () {
-        doSkip(-300.0);
+        doSkip((video.currentTime - 300.0));
     };
 	this.onRight = function () {
-        doSkip(60.0);
+        doSkip((video.currentTime + 60.0));
 	};
     this.onFF = function () {
-        doSkip(300.0);
+        doSkip((video.currentTime + 300.0));
     };
 	this.onEnter = function () {
         togglePause();
@@ -309,6 +293,9 @@ function PlayerView(uri, useViewOffset, returnView) {
     this.onStop = function () {
         closePlayer();
     };
+    
+    
+    /* !View */
     
 	this.render = function (container) {
 		currentMedia = container.media[0];
@@ -347,6 +334,9 @@ function PlayerView(uri, useViewOffset, returnView) {
                         .play();
 		}
 	};
+	
+	
+	/* Initialize */
 	
     loading = true;
     
