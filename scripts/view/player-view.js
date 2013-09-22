@@ -216,9 +216,7 @@ function PlayerView(uri, useViewOffset, returnView) {
 	    	}
     	});
     	
-    	addEventHandler(video, 'error', function(e) { 
-    		console.log('error', e);
-    	 
+    	addEventHandler(video, 'error', function(e) {     	 
     		state = 'stopped';
     	
 	    	closePlayer();
@@ -316,7 +314,6 @@ function PlayerView(uri, useViewOffset, returnView) {
 	
 	this.onDown = function () {
         showControls('');
-        toggleSubtitles();
 	}
 	
 	this.onLeft = function () {
@@ -384,7 +381,7 @@ function PlayerView(uri, useViewOffset, returnView) {
         
         setMetaData(currentMedia);
 
-        var url = plexAPI.getUrl(currentMedia.url);
+        var url = plexAPI.getURL(currentMedia.url);
                 
         video.src = url;
         
