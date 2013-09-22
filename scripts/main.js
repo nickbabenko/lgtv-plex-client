@@ -121,6 +121,22 @@ function keydownHandler(event) {
     }
 }
 
+function showInfo(message) {
+	var infoContainer = document.getElementById('info');
+	
+	infoContainer.style.top = window.offsetHeight;
+	
+	infoContainer.setAttribute('class', 'vertical-transtion');
+	
+	infoContainer.innerHTML = message;
+	
+	infoContainer.style.top = (window.offsetHeight - infoContainer.offsetHeight);
+	
+	setTimeout(function() {
+		infoContainer.style.top = window.offsetHeight;
+	}, (10 * 1000));
+}
+
 function initPage() {    
     addEventHandler(document.body, 'keydown', keydownHandler);
 

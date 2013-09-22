@@ -175,3 +175,16 @@ span img {
 
 #ondeck-menu .current-scroller #current-ondeck img {
   border-radius: 0; }
+  
+  
+#info {
+	background: #666666;
+	border-radius: 10px 10px 0 0;
+	position: absolute;
+	right: 30px;
+	line-height: 68px;
+	color: #ffffff;
+	text-align: center;
+	font-size: 25px;
+	display: none;
+}

@@ -36,16 +36,35 @@ function PlexAPI() {
 		else {
 			return url + '/' + key;
 		}
-	};
+	}
+	
     this.onDeck = function(key) {
         return this.getURL(key) + '/onDeck';
-    };
+    }
+    
     this.recentlyAdded = function(key) {
         return this.getURL(key) + '/recentlyAdded';
-    };
+    }
+     
+    this.serverUrl = function() {
+	    return 'http://' + Settings.getPMS() + ':32400';
+    }
+    
 	this.sections = function() {
-		return 'http://'+Settings.getPMS()+':32400/library/sections';
-	};
+		return this.serverUrl() + '/library/sections';
+	}
+	
+	this.partUrl = function(partId) {
+		return this.serverUrl() + '/library/parts/' + partId;
+	}
+	
+	this.saveSubtitle = function(partId, streamId) {
+		this.put(this.partUrl(partId) + '?subtitleStreamID=' + streamId);
+	}
+	
+	this.videoUrl = function(video) {	
+		return this.serverUrl() + '/video/:/transcode/universal/start.m3u8?path=' + encodeURIComponent('http://127.0.0.1:32400' + video.key) + '&mediaIndex=0&partIndex=0&protocol=hls&offset=0&fastSeek=1&directPlay=0&directStream=1&videoQuality=100&videoResolution=' + video.width + 'x' + video.height + '&maxVideoBitrate=' + video.bitrate + '&subtitleSize=100&audioBoost=100&X-Plex-Client-Identifier=' + this.clientIdentifier + '&X-Plex-Product=Web%20Client&X-Plex-Device=Mac&X-Plex-Platform=Safari&X-Plex-Platform-Version=7&X-Plex-Version=1.2.12&X-Plex-Device-Name=Plex%2FWeb%20(Safari)';
+	}
 
     /**
      * Ping an address to see if it is an valid Plex Media Server.
@@ -68,37 +87,46 @@ function PlexAPI() {
         };
         xhr.open('GET', 'http://'+address+':32400/library/sections', true);
         xhr.send(null);
-    };
+    }
     
     this.get = function(url) {
+	    this.request('GET', url);
+    }
+    
+    this.put = function(url) {
+	    this.request('PUT', url);
+    }
+    
+    this.request = function(method, url) {
 	    var xhr = new XMLHttpRequest();
 	   
-	    xhr.open('GET', url, true);
+	    xhr.open(method, url, true);
 	    xhr.setRequestHeader('X-Plex-Client-Identifier', this.clientIdentifier);
 	    xhr.send(null);
     }
 
     this.progress = function(key, ratingKey, time, duration, state) {
-        this.get('http://' + Settings.getPMS() + ':32400/:/timeline?time=' + parseInt(time, 10) + '&duration=' + duration + '&state=' + state + '&key=' + encodeURIComponent(key) + '&ratingKey=' + ratingKey);
+        this.get(this.serverUrl() + '/:/timeline?time=' + parseInt(time, 10) + '&duration=' + duration + '&state=' + state + '&key=' + encodeURIComponent(key) + '&ratingKey=' + ratingKey);
     };
+    
     this.watched = function(key) {
-        var url = 'http://'+Settings.getPMS()+':32400/:/scrobble?key='+key+'&identifier=com.plexapp.plugins.library';
+        var url = this.serverUrl() + '/:/scrobble?key='+key+'&identifier=com.plexapp.plugins.library';
         var xhr = new XMLHttpRequest();
         
         xhr.open('GET', url, true);
         xhr.send(null);
     };
+    
     this.unwatched = function(key) {
-        var url = 'http://'+Settings.getPMS()+':32400/:/unscrobble?key='+key+'&identifier=com.plexapp.plugins.library';
+        var url = this.serverUrl() + '/:/unscrobble?key='+key+'&identifier=com.plexapp.plugins.library';
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.send(null);
     };
 
     this.getScaledImageURL = function(url, width, height) {
-        return 'http://'+Settings.getPMS()+':32400/photo/:/transcode?width='+width+'&height='+height+'&url='+encodeURIComponent(url);
+        return this.serverUrl() + '/photo/:/transcode?width='+width+'&height='+height+'&url=' + encodeURIComponent(url);
     };
-
 }
 
 // Register the API globally

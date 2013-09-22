@@ -5,16 +5,17 @@ function Settings() {
     var _anim 		= true;
 
     function getCookie(name) {    
-        var x,y,ARRcookies=document.cookie.split(';');
+        var x,y,ARRcookies = document.cookie.split(';');
         var n = ARRcookies.length;
-        
+                
         for (var i = 0; i < n; i++) {
-            x=ARRcookies[i].substr(0,ARRcookies[i].indexOf('='));
-            y=ARRcookies[i].substr(ARRcookies[i].indexOf('=')+1);
-            x=x.replace(/^\s+|\s+$/g,'');
-            if (x === name) {
+            x = ARRcookies[i].substr(0,ARRcookies[i].indexOf('='));
+            y = ARRcookies[i].substr(ARRcookies[i].indexOf('=')+1);
+            
+            x = x.replace(/^\s+|\s+$/g,'');
+            
+            if (x === name)
                 return unescape(y);
-            }
         }
     }
     
@@ -23,8 +24,8 @@ function Settings() {
         
         exdate.setDate(exdate.getDate() + exdays);
         
-        value = escape(value) + ((exdays===null) ? '' : '; expires='+exdate.toUTCString());
-        
+        value = escape(value) + ((exdays === null) ? '' : '; expires=' + exdate.toUTCString());
+                        
         document.cookie = name + '=' + value;
     }
 
@@ -47,8 +48,6 @@ function Settings() {
         _debugUUID = getCookie('nettv_plex_debug_uuid');
         _anim = getCookie('nettv_plex_disable_anim') !== 'true';
         
-        console.log(_pms);
-
         if (_debugUUID === undefined) {
             _debugUUID = 'nettv-plex-' + UUID.simple();
             
@@ -57,8 +56,6 @@ function Settings() {
 
         if (_debug)
             activateDebug(_debugUUID);
-
-        console.log('Using PMS: ' + _pms);
         
         return _pms !== null && _pms !== undefined;
     }
@@ -70,7 +67,7 @@ function Settings() {
           deleteCookie(cookies[i].split('=')[0]);
     }
 
-    this.setPMS = function(pms) {
+    this.setPMS = function(pms) {    
         setCookie('nettv_plex_pms_ip', pms, 3600);
         
         _pms = pms;

@@ -14,6 +14,9 @@
  */
 /*global Popcorn,video */
 function PlayerView(uri, useViewOffset, returnView) {
+
+	// !CONSTANTS
+	
     var CONTROLS_TIMEOUT = 5000;
     var PROGRESS_INTERVAL = 60000;
 
@@ -22,13 +25,21 @@ function PlayerView(uri, useViewOffset, returnView) {
 
     var scope = this;
 
-    // Preload the element lookups
+
+	// !VIEW ELEMENTS
+	
     var player = document.getElementById('player');
     var controls = document.getElementById('controls');
     var status = document.getElementById('player-status-message');
 
+	
+	// !CONFIGURE VIEW
+
     if (Settings.useAnim())
         platform.addTransition(controls, '500ms', 'bottom');
+
+
+	// !VIDEO CONFIGURATION
 
     var totalDuration = 0;
     var durationIndex = 0;
@@ -45,6 +56,11 @@ function PlayerView(uri, useViewOffset, returnView) {
     
     var video;
     var state = 'stopped';
+    
+    var subtitlesEnabled = false,
+    	currentSubtitle = -1,
+    	popcorn;
+    
     
     function createVideo() {
 	    video = document.createElement('video');
@@ -200,7 +216,9 @@ function PlayerView(uri, useViewOffset, returnView) {
 	    	}
     	});
     	
-    	addEventHandler(video, 'error', function(e) {  
+    	addEventHandler(video, 'error', function(e) { 
+    		console.log('error', e);
+    	 
     		state = 'stopped';
     	
 	    	closePlayer();
@@ -257,43 +275,89 @@ function PlayerView(uri, useViewOffset, returnView) {
         video.currentTime = time;        
     }
     
+    function toggleSubtitles() {
+	    if(!subtitlesEnabled) {
+	    	if(currentSubtitle == -1) {
+	    		currentSubtitle = currentMedia.defaultSubtitle;
+	    		
+	    		plexApi.saveSubtitle(currentMedia.partId, currentMedia.subtitles[currentSubtitle].id);
+	    	}
+	    
+	    	var currentSubtitleObject = currentMedia.subtitles[currentSubtitle];
+	    
+	    	popcorn = new Popcorn('#video');
+            
+            popcorn.parseSRT(plexAPI.getURL(currentMedia.url))
+            	   .play();
+                        
+            subtitlesEnabled = true;
+            
+            showInfo('Subtitles<br />' + currentSubtitleObject.language);
+	    }
+	    else {
+		    if(typeof popcorn == 'Popcorn') {
+			    popcorn.destroy();
+			    
+			    popcorn = null;
+		    }
+		    
+		    subtitlesEnabled = false;
+		    
+		    showInfo('Subtitles<br />Off');
+	    }
+    }
+    
     
     /* !Key Events */
 
 	this.onUp = function () {
         hideControls();
-	};
+	}
+	
 	this.onDown = function () {
         showControls('');
-	};
+        toggleSubtitles();
+	}
+	
 	this.onLeft = function () {
         doSkip((video.currentTime - 60.0));
-	};
+	}
+	
     this.onRew = function () {
         doSkip((video.currentTime - 300.0));
-    };
+    }
+    
 	this.onRight = function () {
         doSkip((video.currentTime + 60.0));
-	};
+	}
+	
     this.onFF = function () {
         doSkip((video.currentTime + 300.0));
-    };
+    }
+    
 	this.onEnter = function () {
         togglePause();
-	};
+	}
+	
     this.onPlay = function () {
         togglePause();
-    };
+    }
+    
     this.onPause = function () {
         togglePause();
-    };
+    }
+    
 	this.onBack = function () {
         closePlayer();
-	};
+	}
+	
     this.onStop = function () {
         closePlayer();
-    };
+    }
     
+    this.onRed = function () {
+	    toggleSubtitles();
+    }
     
     /* !View */
     
@@ -308,10 +372,19 @@ function PlayerView(uri, useViewOffset, returnView) {
             // Save the offset so we can set if when the video is loaded
             startViewOffset = currentMedia.viewOffset;
         }
+                
+        // If this media has subtitles enabled already
+        if(currentMedia.selectedSubtitle > -1) {
+        	// Keep a reference of the index
+        	currentSubtitle = currentMedia.selectedSubtitle;
+        	
+        	// Enable subtitles
+        	toggleSubtitles();
+        }
         
         setMetaData(currentMedia);
 
-        var url = plexAPI.getURL(currentMedia.url);
+        var url = plexAPI.getUrl(currentMedia.url);
                 
         video.src = url;
         
@@ -326,13 +399,6 @@ function PlayerView(uri, useViewOffset, returnView) {
         
         video.load();
         video.play();
-
-		// Load subtitles
-		if (currentMedia.subtitles) {
-			var p =  new Popcorn( '#video' )
-                        .parseSRT(plexAPI.getURL(currentMedia.subtitles))
-                        .play();
-		}
 	};
 	
 	
