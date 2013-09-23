@@ -58,19 +58,7 @@ function PlayerView(uri, useViewOffset, returnView) {
     var state = 'stopped';
     
     var subtitlesEnabled = false,
-    	currentSubtitle = -1,
-    	popcorn;
-    
-    
-    function createVideo() {
-	    video = document.createElement('video');
-	    
-	    video.setAttribute('id', 'video');
-	    
-	    video.volume = 1;
-	    	    
-	    player.appendChild(video);
-    }
+    	currentSubtitle = -1;
 
     function showControls(msg, timeout) {
         controls.style.bottom = 0;
@@ -165,7 +153,6 @@ function PlayerView(uri, useViewOffset, returnView) {
         }
 
         title.innerHTML = '<h1>' + heading1 + '</h1><h2>' + heading2 + '</h2>';
-
 
         document.getElementById('controls-description').innerHTML = media.summary.encodeHTML();
     }
@@ -283,10 +270,10 @@ function PlayerView(uri, useViewOffset, returnView) {
 	    
 	    	var currentSubtitleObject = currentMedia.subtitles[currentSubtitle];
 	    
-	    	popcorn = new Popcorn('#video');
+	    	//popcorn = new Popcorn('#video');
             
-            popcorn.parseSRT(plexAPI.getURL(currentMedia.url))
-            	   .play();
+            //popcorn.parseSRT(plexAPI.getURL(currentMedia.url))
+            	//   .play();
                         
             subtitlesEnabled = true;
             
@@ -301,7 +288,7 @@ function PlayerView(uri, useViewOffset, returnView) {
 		    
 		    subtitlesEnabled = false;
 		    
-		    showInfo('Subtitles<br />Off');
+		    showInfo('Subtitles<br />Disabled');
 	    }
     }
     
@@ -361,14 +348,16 @@ function PlayerView(uri, useViewOffset, returnView) {
 	this.render = function (container) {
 		currentMedia = container.media[0];
 
-		createVideo();
+		//createVideo();
         showPlayer();
-        createEventListeners();
+        //createEventListeners();
                 
         if (useViewOffset && currentMedia.viewOffset) {
             // Save the offset so we can set if when the video is loaded
             startViewOffset = currentMedia.viewOffset;
         }
+        else
+	        startViewOffset = 0;
                 
         // If this media has subtitles enabled already
         if(currentMedia.selectedSubtitle > -1) {
@@ -380,22 +369,42 @@ function PlayerView(uri, useViewOffset, returnView) {
         }
         
         setMetaData(currentMedia);
-
-        var url = plexAPI.getURL(currentMedia.url);
-                
-        video.src = url;
         
-        if (currentMedia.mimeType)
-            video.type = currentMedia.mimeType;
-                                    
-		var scaleRatio   	= (currentMedia.width / currentMedia.height);
+        var scaleRatio   	= (currentMedia.width / currentMedia.height);
         var videoWidth 		= window.outerWidth; // fixed width depending on the viewport 
         var videoHeight		= (videoWidth / scaleRatio);    
-                                
-        video.setAttribute('style', 'height: ' + videoHeight + 'px; width: ' + videoWidth + 'px; margin-top: ' + -(videoHeight / 2) + 'px;'); 
+
+        var url = plexAPI.videoUrl(currentMedia);
+        var urls = {};
+	      
+	    urls['m3u8'] = url;
+	    
+	    $('#video').jPlayer({
+		   swfPath: 'scripts',
+		   solution: 'html, flash',
+		   supplied: 'm3u8',
+		   errorAlerts: true,
+		   size: {
+			   width: videoWidth,
+			   height: videoHeight
+		   },
+		   ready: function() {
+			   $('#video').jPlayer('setMedia', urls);  
+			   $('#video').jPlayer('play', startViewOffset);  
+		   }
+	    });
+                     
+            
+                
+        //video.src = url;
         
-        video.load();
-        video.play();
+        //if (currentMedia.mimeType)
+            //video.type = currentMedia.mimeType;
+                                        
+        $('#video, #video .video').css({ height: videoHeight, width: videoWidth, marginTop: -(videoHeight / 2) }); 
+        
+        //video.load();
+        //video.play();
 	};
 	
 	

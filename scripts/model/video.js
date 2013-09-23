@@ -183,6 +183,7 @@ function Video(elem) {
 		art: art,
 		url: url,
         mimeType: getContainerMimeType(mimeType),
+        containerMimeType: mimeType,
 		subtitles: subtitles,
 		selectedSubtitle: selectedSubtitle,
 		defaultSubtitle: defaultSubtitle,

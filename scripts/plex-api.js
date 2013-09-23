@@ -1,7 +1,9 @@
 function PlexAPI() {
     'use strict';
     
-    this.clientIdentifier = 'LG-Plex';
+    this.clientIdentifier 	= 'wefq8o7za74on7b9';
+    this.apiKey				= 'KQMIY6GATPC63AIMC4R2';
+    this.secretKey			= 'k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=';
     
 	this.browse = function(url, callback) {
         var xhr = new XMLHttpRequest();
@@ -63,7 +65,47 @@ function PlexAPI() {
 	}
 	
 	this.videoUrl = function(video) {	
-		return this.serverUrl() + '/video/:/transcode/universal/start.m3u8?path=' + encodeURIComponent('http://127.0.0.1:32400' + video.key) + '&mediaIndex=0&partIndex=0&protocol=hls&offset=0&fastSeek=1&directPlay=0&directStream=1&videoQuality=100&videoResolution=' + video.width + 'x' + video.height + '&maxVideoBitrate=' + video.bitrate + '&subtitleSize=100&audioBoost=100&X-Plex-Client-Identifier=' + this.clientIdentifier + '&X-Plex-Product=Web%20Client&X-Plex-Device=Mac&X-Plex-Platform=Safari&X-Plex-Platform-Version=7&X-Plex-Version=1.2.12&X-Plex-Device-Name=Plex%2FWeb%20(Safari)';
+		/*console.log(video);
+		
+		var args = {
+			path: 'http://127.0.0.1:32400' + video.key,
+			mediaIndex: 0,
+			partIndex: 0,
+			protocol: 'hls',
+			offset: 0,
+			fastSeek: 0,
+			directPlay: 0,
+			directStream: 1,
+			videoQuality: 100,
+			videoResolution: video.width + 'x' + video.height,
+			maxVideoBitrate: video.bitrate,
+			subtitleSize: 100,
+			audioBoost: 100,
+			session: 'wefq8o7za74on7b9'
+		};
+		
+		var secretKey = atob(this.secretKey);
+		var message = '/video/:/transcode/segmented/start.m3u8?' + this.serialize(args) + '@' + (new Date().getTime() / 1000);
+		
+		var hash = CryptoJS.HmacSHA256("Message", secretKey);
+		var signature = CryptoJS.enc.Base64.stringify(hash);
+				
+		args['X-Plex-Access-Key'] = this.apiKey;
+		args['X-Plex-Access-Time'] = new Date().getTime() / 1000;
+		args['X-Plex-Access-Code'] = signature;
+		
+		return this.serverUrl() + '/video/:/transcode/segmented/start.m3u8?' + this.serialize(args);*/
+	
+		return this.serverUrl() + '/video/:/transcode/universal/start.m3u8?path=' + encodeURIComponent('http://127.0.0.1:32400' + video.key) + '&mediaIndex=0&partIndex=0&protocol=hls&offset=0&fastSeek=1&directPlay=0&directStream=1&videoQuality=100&videoResolution=' + video.width + 'x' + video.height + '&maxVideoBitrate=' + video.bitrate + '&subtitleSize=100&audioBoost=100&X-Plex-Client-Identifier=' + this.clientIdentifier + '&X-Plex-Product=Web%20Client&X-Plex-Device=Mac&X-Plex-Platform=Chrome&X-Plex-Platform-Version=7&X-Plex-Version=1.2.12&X-Plex-Device-Name=Plex%2FWeb%20(Chrome)';
+	}
+	
+	this.serialize = function(obj) {
+		  var str = [];
+		  
+		  for(var p in obj)
+		     str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+		     
+		  return str.join('&');
 	}
 
     /**
