@@ -57,6 +57,8 @@ function PlayerView(uri, useViewOffset, returnView) {
     var video;
     var state = 'stopped';
     
+    var video;
+    
     var subtitlesEnabled = false,
     	currentSubtitle = -1;
 
@@ -79,13 +81,13 @@ function PlayerView(uri, useViewOffset, returnView) {
         player.style.top = '0';
     }
     
-    function closePlayer() {
+    function closePlayer(e) {
         hideControls();
                 
-        video.pause();
+        //video.pause();
 
         // Manually report that we have stopped
-        reportPlexProgress();
+        reportPlexProgress(e);
 
         clearInterval(plexProgressTimer);
         clearInterval(controlsTimer);
@@ -215,10 +217,12 @@ function PlayerView(uri, useViewOffset, returnView) {
             
         showControls(' ', CONTROLS_TIMEOUT);
         
-        video.currentTime = time;        
+        $('#video').jPlayer('play', time);        
     }
     
     function toggleSubtitles() {
+    	loading = true;-
+    
     	console.log('toggleSubtitles');
     
 	    if(!subtitlesEnabled) {
@@ -244,10 +248,12 @@ function PlayerView(uri, useViewOffset, returnView) {
 	    
 	    var url = plexAPI.videoUrl(currentMedia);
         var urls = { 'm3u8': url };
+        
+        state = 'paused';
 	    
+	    $('#video').jPlayer('pause');
 	    $('#video').jPlayer('clearMedia');
-	    $('#video').jPlayer('setMedia', urls);
-	    $(this).jPlayer('play', startViewOffset);
+	    $('#video').jPlayer('setMedia', urls);	    
     }
     
     
@@ -350,6 +356,8 @@ function PlayerView(uri, useViewOffset, returnView) {
 	    		
 	    			readyHandler(e);
 				}
+				
+				$(this).jPlayer('play', startViewOffset); 
 			},
 			ended: function() {
 				state = 'stopped';
@@ -363,15 +371,23 @@ function PlayerView(uri, useViewOffset, returnView) {
 			stalled: function() {
 				showControls('BUFFERING', CONTROLS_TIMEOUT);
 			},
-			error: function() {
+			error: function(e) {			
 				state = 'stopped';
     	
-				closePlayer();
+				closePlayer(e);
 			},
-			progress: function(e) {
+			progress: function() {
+				showControls('BUFFERING', CONTROLS_TIMEOUT);
+			},
+			timeupdate: function(e) {
+				if(loading && state != 'playing')
+					return;
+			
 				reportPlexProgress(e);	    	
 				updateElapsedTime(e);
-				
+								
+				video = e.jPlayer.status;
+								
 				startViewOffset = e.jPlayer.status.currentTime;
 			},
 			play: function() {

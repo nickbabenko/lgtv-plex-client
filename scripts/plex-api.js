@@ -1,10 +1,8 @@
 function PlexAPI() {
     'use strict';
     
-    this.clientIdentifier 	= 'wefq8o7za74on7b9';
-    this.apiKey				= 'KQMIY6GATPC63AIMC4R2';
-    this.secretKey			= 'k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=';
-    
+    this.clientIdentifier = 'c2b8ewbogl';
+
 	this.browse = function(url, callback) {
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
@@ -14,6 +12,7 @@ function PlexAPI() {
                 }
                 else {
                     // TODO: Proper error handling
+                    console.log(1);
                     console.log('ERROR(' + xhr.status + ') msg: ' + xhr.statusText);
                     callback(new MediaContainer());
                 }
@@ -64,14 +63,14 @@ function PlexAPI() {
 		this.put(this.partUrl(partId) + '?subtitleStreamID=' + streamId);
 	}
 	
-	this.videoUrl = function(video) {			
+	this.videoUrl = function(video) {	
 		var args = {
 			path: 'http://127.0.0.1:32400' + video.key,
 			mediaIndex: 0,
 			partIndex: 0,
 			protocol: 'hls',
 			offset: 0,
-			fastSeek: 0,
+			fastSeek: 1,
 			directPlay: 0,
 			directStream: 1,
 			videoQuality: 100,
@@ -79,14 +78,12 @@ function PlexAPI() {
 			maxVideoBitrate: video.bitrate,
 			subtitleSize: 100,
 			audioBoost: 100,
-			'X-Plex-Client-Identifier': 'c2b8ewbogl',
 			'X-Plex-Product': 'Web Client',
 			'X-Plex-Device': 'Mac',
 			'X-Plex-Platform': 'Chrome',
 			'X-Plex-Platform-Version': 7,
 			'X-Plex-Version': '1.2.12',
-			'X-Plex-Device-Name': 'Plex Web (Chrome)',
-			session: 'c2b8ewbogl'
+			'X-Plex-Device-Name': 'Plex Web (Chrome)'
 		};
 		
 		return this.serverUrl() + '/video/:/transcode/universal/start.m3u8?' + this.serialize(args);
@@ -136,6 +133,13 @@ function PlexAPI() {
 	    var xhr = new XMLHttpRequest();
 	   
 	    xhr.open(method, url, true);
+	    xhr.setRequestHeader('X-Plex-Version', '1.2.12');
+	    xhr.setRequestHeader('X-Plex-Platform-Version', '7');
+	    xhr.setRequestHeader('X-Plex-Device-Name', 'Plex/Web (Safari)');
+	    xhr.setRequestHeader('X-Plex-Platform', 'Safari');
+	    xhr.setRequestHeader('X-Plex-Product', 'Web Client');
+	    xhr.setRequestHeader('X-Plex-Device', 'Mac');
+	    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 	    xhr.setRequestHeader('X-Plex-Client-Identifier', this.clientIdentifier);
 	    xhr.send(null);
     }

@@ -101,6 +101,7 @@ function Video(elem) {
 
 	var url = '';
     var mimeType = null;
+    var mediaId;
     
 	var subtitles = [],
 		selectedSubtitle = -1,
@@ -119,6 +120,7 @@ function Video(elem) {
 		if (media.nodeName !== 'Media')
             continue;
 
+		mediaId = parseInt(media.getAttribute('id'));
 		bitrate = media.getAttribute('bitrate');
         mimeType = media.getAttribute('container');
         resolution = media.getAttribute('videoResolution');
@@ -168,6 +170,7 @@ function Video(elem) {
 	}
 
 	return {
+		mediaId: mediaId,
 		partId: partId,
 		key: key,
         ratingKey: ratingKey,
