@@ -102,12 +102,12 @@ function PlayerView(uri, useViewOffset, returnView) {
         player.style.display = 'none';
     }
 
-    function reportPlexProgress() {    
+    function reportPlexProgress(e) {    
         if (!currentMedia)
             return;
-            
-        var duration = video.duration;
-        var position = video.currentTime;
+                        
+        var duration = e.jPlayer.status.duration;
+        var position = e.jPlayer.status.currentTime;
         
         if(lastPlexUpdateTime != null &&
            ((position - lastPlexUpdateTime) < 10)) { // only every 10 seconds
@@ -157,71 +157,29 @@ function PlayerView(uri, useViewOffset, returnView) {
         document.getElementById('controls-description').innerHTML = media.summary.encodeHTML();
     }
 
-    function readyHandler() {
+    function readyHandler(e) {
         loading = false;
         
         document.getElementById('video-loading').style.display = 'none';
 
-        setDuration();
-
-        if (startViewOffset) {
-            doSkip(startViewOffset);
-            
-            startViewOffset = null;
-        }
+        setDuration(e);
     }
 
-    function setDuration() {
-        document.getElementById('total-duration').innerHTML = Time.format(video.duration);
-    }
-
-    function createEventListeners() {    
-    	addEventHandler(video, 'play', function(e) {
-	    	state = 'playing';
-    	});
-    	
-    	addEventHandler(video, 'pause', function(e) {
-	    	state = 'paused';
-    	});
-    
-    	addEventHandler(video, 'progress', function(e) {
-    		reportPlexProgress(e);	    	
-	    	updateElapsedTime(e);
-    	});
-    	
-    	addEventHandler(video, 'ended', function(e) {
-    		state = 'stopped';
-    	
-	    	closePlayer();
-    	});
-    	
-    	addEventHandler(video, 'loadeddata', function() {    	
-	    	if(loading) {
-	    		loading = false;
-	    		
-	    		readyHandler();
-	    	}
-    	});
-    	
-    	addEventHandler(video, 'error', function(e) {     	 
-    		state = 'stopped';
-    	
-	    	closePlayer();
-    	});
-    	
-    	addEventHandler(video, 'stalled', function(e) {    	
-	    	showControls('BUFFERING', CONTROLS_TIMEOUT);
-    	});
+    function setDuration(e) {
+        document.getElementById('total-duration').innerHTML = Time.format(e.jPlayer.status.duration);
     }
 
     /**
      * Update the progress bar.
      */
-    function updateElapsedTime(e) {
+    function updateElapsedTime(e) {    	
+    	var duration = e.jPlayer.status.duration;
+    	var currentTime = e.jPlayer.status.currentTime;
+    
     	var progressBarBase = document.getElementById('progressbar-back');
     	    	    
-        document.getElementById('duration').innerHTML = Time.format(video.currentTime);
-        document.getElementById('progressbar-front').style.width = ((progressBarBase.offsetWidth / 100) * ((video.currentTime / video.duration) * 100)) + 'px';
+        document.getElementById('duration').innerHTML = Time.format(currentTime);
+        document.getElementById('progressbar-front').style.width = ((progressBarBase.offsetWidth / 100) * ((currentTime / duration) * 100)) + 'px';
     }
 
     /**
@@ -231,8 +189,8 @@ function PlayerView(uri, useViewOffset, returnView) {
         if (loading)
             return;
 
-        if (parseInt(controls.style.bottom, 10) === 0) {
-            video.play();
+        if (state == 'paused') {
+            $('#video').jPlayer('play');
             
             // Delay hidding the controls a bit to make it more fluent
             setTimeout(function() {
@@ -240,7 +198,7 @@ function PlayerView(uri, useViewOffset, returnView) {
             }, 1000);
         }
         else {
-            video.pause();
+            $('#video').jPlayer('pause');
             
             showControls('PAUSED');
         }
@@ -261,35 +219,35 @@ function PlayerView(uri, useViewOffset, returnView) {
     }
     
     function toggleSubtitles() {
+    	console.log('toggleSubtitles');
+    
 	    if(!subtitlesEnabled) {
-	    	if(currentSubtitle == -1) {
-	    		currentSubtitle = currentMedia.defaultSubtitle;
+	    	console.log('enable subtitles');
+	    	if(currentSubtitle == -1)
+	    		currentSubtitle = currentMedia.defaultSubtitle;	
 	    		
-	    		plexApi.saveSubtitle(currentMedia.partId, currentMedia.subtitles[currentSubtitle].id);
-	    	}
+			plexAPI.saveSubtitle(currentMedia.partId, currentMedia.subtitles[currentSubtitle].id);
 	    
 	    	var currentSubtitleObject = currentMedia.subtitles[currentSubtitle];
-	    
-	    	//popcorn = new Popcorn('#video');
-            
-            //popcorn.parseSRT(plexAPI.getURL(currentMedia.url))
-            	//   .play();
                         
             subtitlesEnabled = true;
             
             showInfo('Subtitles<br />' + currentSubtitleObject.language);
 	    }
-	    else {
-		    if(typeof popcorn == 'Popcorn') {
-			    popcorn.destroy();
-			    
-			    popcorn = null;
-		    }
-		    
+	    else {  
+	    	plexAPI.saveSubtitle(currentMedia.partId, '');
+	    
 		    subtitlesEnabled = false;
 		    
 		    showInfo('Subtitles<br />Disabled');
 	    }
+	    
+	    var url = plexAPI.videoUrl(currentMedia);
+        var urls = { 'm3u8': url };
+	    
+	    $('#video').jPlayer('clearMedia');
+	    $('#video').jPlayer('setMedia', urls);
+	    $(this).jPlayer('play', startViewOffset);
     }
     
     
@@ -304,7 +262,8 @@ function PlayerView(uri, useViewOffset, returnView) {
 	}
 	
 	this.onLeft = function () {
-        doSkip((video.currentTime - 60.0));
+       // doSkip((video.currentTime - 60.0));
+       toggleSubtitles();
 	}
 	
     this.onRew = function () {
@@ -348,9 +307,7 @@ function PlayerView(uri, useViewOffset, returnView) {
 	this.render = function (container) {
 		currentMedia = container.media[0];
 
-		//createVideo();
         showPlayer();
-        //createEventListeners();
                 
         if (useViewOffset && currentMedia.viewOffset) {
             // Save the offset so we can set if when the video is loaded
@@ -358,53 +315,74 @@ function PlayerView(uri, useViewOffset, returnView) {
         }
         else
 	        startViewOffset = 0;
-                
+	                        
         // If this media has subtitles enabled already
         if(currentMedia.selectedSubtitle > -1) {
         	// Keep a reference of the index
         	currentSubtitle = currentMedia.selectedSubtitle;
         	
-        	// Enable subtitles
-        	toggleSubtitles();
+        	subtitlesEnabled = true;
         }
         
         setMetaData(currentMedia);
         
-        var scaleRatio   	= (currentMedia.width / currentMedia.height);
+        //var scaleRatio   	= (currentMedia.width / currentMedia.height);
         var videoWidth 		= window.outerWidth; // fixed width depending on the viewport 
-        var videoHeight		= (videoWidth / scaleRatio);    
+        var videoHeight		= Math.min(window.outerHeight, currentMedia.height); //(videoWidth / scaleRatio);    
 
         var url = plexAPI.videoUrl(currentMedia);
-        var urls = {};
-	      
-	    urls['m3u8'] = url;
-	    
+        var urls = { 'm3u8': url };
+	      	    
 	    $('#video').jPlayer({
-		   swfPath: 'scripts',
-		   solution: 'html, flash',
+		   solution: 'html',
 		   supplied: 'm3u8',
-		   errorAlerts: true,
 		   size: {
 			   width: videoWidth,
 			   height: videoHeight
 		   },
-		   ready: function() {
-			   $('#video').jPlayer('setMedia', urls);  
-			   $('#video').jPlayer('play', startViewOffset);  
-		   }
+		   ready: function() {		   
+			   $(this).jPlayer('setMedia', urls);  
+			   $(this).jPlayer('play', startViewOffset);  
+			},
+			loadeddata: function(e) {
+				 if(loading) {
+	    			loading = false;
+	    		
+	    			readyHandler(e);
+				}
+			},
+			ended: function() {
+				state = 'stopped';
+    	
+				reportPlexProgress();
+				closePlayer();
+			},
+			timeupdate: function(event) {
+				reportPlexProgress(event);
+			},
+			stalled: function() {
+				showControls('BUFFERING', CONTROLS_TIMEOUT);
+			},
+			error: function() {
+				state = 'stopped';
+    	
+				closePlayer();
+			},
+			progress: function(e) {
+				reportPlexProgress(e);	    	
+				updateElapsedTime(e);
+				
+				startViewOffset = e.jPlayer.status.currentTime;
+			},
+			play: function() {
+				state = 'playing';
+			},
+			pause: function() {
+				state = 'paused';
+			}
 	    });
-                     
-            
-                
-        //video.src = url;
-        
-        //if (currentMedia.mimeType)
-            //video.type = currentMedia.mimeType;
-                                        
+                           
         $('#video, #video .video').css({ height: videoHeight, width: videoWidth, marginTop: -(videoHeight / 2) }); 
-        
-        //video.load();
-        //video.play();
 	};
 	
 	

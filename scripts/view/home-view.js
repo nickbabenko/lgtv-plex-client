@@ -56,9 +56,9 @@ function HomeView() {
 
     function setTitle(id, element) {
         var heading = document.getElementById(id);
-        var title = element.getAttribute('data-title').encodeHTML();
+        var title = element.getAttribute('data-title');
         var meta = element.getAttribute('data-meta');
-
+        
         heading.innerHTML = title+'<span>'+meta+'</span>';
     }
 
@@ -156,14 +156,20 @@ function HomeView() {
         };
         homeMenu.onmenuup = function(e) {
             clearTimeout(previewLoader);
+            
             backgroundLoader.load(e.element.getAttribute('data-bg'));
+            
             loadPreviewMenu(e.element.getAttribute('data-key'));
+            
             lastUsedMenu = null;
         };
         homeMenu.onmenudown = function(e) {
             clearTimeout(previewLoader);
+            
             backgroundLoader.load(e.element.getAttribute('data-bg'));
+            
             loadPreviewMenu(e.element.getAttribute('data-key'));
+            
             lastUsedMenu = null;
         };
 
@@ -189,27 +195,30 @@ function HomeView() {
     }
 
     function loadPreviewMenu(key) {
-
         if (key === '') {
             document.getElementById('preview-menu').style.display = 'none';
+            
             return;
         }
 
         previewLoader = setTimeout(function() {
-
             plexAPI.browse(plexAPI.onDeck(key), function(container) {
                 buildVideoList('scroller-ondeck', 'current-ondeck',container.media);
+                
                 ondeckMenu.reload();
+                
                 dirtyOndeckThumbs = true;
             });
 
             plexAPI.browse(plexAPI.recentlyAdded(key), function(container) {
                 buildVideoList('scroller-recentlyadded', 'current-recentlyadded', container.media);
+                
                 recentlyAddedMenu.reload();
+                
                 dirtyRecentlyAddedThumbs = true;
             });
 
-        }, PREVIEW_MENU_LOADING_DELAY);
+        }, 0);
 
         document.getElementById('preview-menu').style.display = 'block';
     }
@@ -217,6 +226,7 @@ function HomeView() {
     function posterErrorHandler (source) {
         this.src = PLACEHOLDER_IMAGE;
         this.onerror = ''; // Reset the error handler to avoid recursive references
+        
         return true;
     }
 
@@ -240,15 +250,22 @@ function HomeView() {
             if (video.grandparentTitle) {
                 title = video.grandparentTitle;
             }
-            var meta = ' <img src="images/bullet1.png" alt=""  /> ' + video.year;
+            var date = (video.type == 'episode' ? video.originallyAvailableAt : video.year);
+            var meta = ' <img src="images/bullet1.png" alt=""  /> ' + date;
             var offset = (video.viewOffset) ? video.viewOffset : 0;
-
+                                    
+            if(video.season != null &&
+               video.episode != null) {
+	        	title += ' <img src="images/bullet1.png" alt=""  /> <span>Season ' + video.season + '</span> <img src="images/bullet1.png" alt=""  /> Episode ' + video.episode;       
+            }
+            
             var item = document.createElement('li');
             item.setAttribute('data-key', video.key);
             item.setAttribute('data-type', (video.container) ? 'container' : 'video');
             item.setAttribute('data-title', title);
             item.setAttribute('data-meta', meta);
             item.setAttribute('data-offset', offset);
+            item.setAttribute('data-season', video.season);
             //item.setAttribute('onclick', 'jump(,"'+(i*140)+'px");');
 
             var thumb = video.thumb;

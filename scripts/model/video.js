@@ -70,6 +70,7 @@ function Video(elem) {
 	var type = elem.getAttribute('type');
 	var summary = elem.getAttribute('summary');
 	var year = elem.getAttribute('year');
+	var originallyAvailableAt = elem.getAttribute('originallyAvailableAt');
 
     var season = elem.getAttribute('parentIndex');
     var episode = elem.getAttribute('index');
@@ -177,6 +178,7 @@ function Video(elem) {
         episode: episode,
 		summary: summary,
         year: year,
+        originallyAvailableAt: originallyAvailableAt,
 		thumb: thumb,
         grandparentTitle: grandparentTitle,
         grandparentThumb: grandparentThumb,
