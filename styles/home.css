@@ -118,7 +118,8 @@
   color: white; }
 
 #recentlyadded-title {
-  bottom: 9px; }
+  bottom: 9px;
+  width: 600px !important; }
 
 #recentlyadded-title span {
   color: white; }
